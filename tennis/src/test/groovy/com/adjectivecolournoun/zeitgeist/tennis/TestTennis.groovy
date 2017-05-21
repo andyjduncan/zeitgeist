@@ -1,216 +1,59 @@
 package com.adjectivecolournoun.zeitgeist.tennis
 
 import spock.lang.Specification
+import spock.lang.Unroll
 
 
 class TestTennis extends Specification {
 
-    private final tennis = new Tennis()
-
-    void 'if the server scores first, the score is 15-love'() {
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == '15-love'
-    }
-
-    void 'if the receiver scores first, the score is love-15'() {
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'love-15'
-    }
-
-    void 'when the server scores twice, the score is 30-love'() {
+    @Unroll
+    void 'when the score is #score and the #scorer scores, the score is #newScore'() {
         given:
-        tennis.serverScores()
+        def tennis = new Tennis(score)
 
         when:
-        tennis.serverScores()
+        tennis."${scorer}Scores"()
 
         then:
-        tennis.score() == '30-love'
-    }
+        tennis.score() == newScore
 
-    void 'when the receiver scores twice, the score is love-30'() {
-        given:
-        tennis.receiverScores()
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'love-30'
-    }
-
-    void 'when the server scores thrice, the score is 40-love'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == '40-love'
-    }
-
-    void 'when the receiver scores thrice, the score is love-40'() {
-        given:
-        tennis.receiverScores()
-        tennis.receiverScores()
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'love-40'
-    }
-
-    void 'when the server scores four times, they win the game'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == 'server wins'
-    }
-
-    void 'when the receiver scores four times, they win the game'() {
-        given:
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'receiver wins'
-    }
-
-    void 'when the server is 40-30 up and the receiver scores, the score is deuce'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'deuce'
-    }
-
-    void 'when the score is deuce and the server scores, the score is advantage server'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == 'advantage server'
-    }
-
-    void 'when the score is deuce and the receiver scores, the score is advantage receiver'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'advantage receiver'
-    }
-
-    void 'when the score is advantage server and the receiver scores, the score is deuce'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.serverScores()
-        assert tennis.score() == 'advantage server'
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'deuce'
-    }
-
-    void 'when the score is advantage receiver and the server scores, the score is deuce'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        assert tennis.score() == 'advantage receiver'
-
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == 'deuce'
-    }
-
-    void 'when the score is advantage server and they score, they win the game'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.serverScores()
-        assert tennis.score() == 'advantage server'
-
-        when:
-        tennis.serverScores()
-
-        then:
-        tennis.score() == 'server wins'
-    }
-
-    void 'when the score is advantage receiver and they score, they win the game'() {
-        given:
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.serverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        tennis.receiverScores()
-        assert tennis.score() == 'advantage receiver'
-
-        when:
-        tennis.receiverScores()
-
-        then:
-        tennis.score() == 'receiver wins'
+        where:
+        score | scorer | newScore
+        'start' | 'server' | '15-love'
+        'start' | 'receiver' | 'love-15'
+        'love-15' | 'server' | '15 all'
+        'love-15' | 'receiver' | 'love-30'
+        'love-30' | 'server' | '15-30'
+        'love-30' | 'receiver' | 'love-40'
+        'love-40' | 'server' | '15-40'
+        'love-40' | 'receiver' | 'game receiver'
+        '15-love' | 'server' | '30-love'
+        '15-love' | 'receiver' | '15 all'
+        '15 all' | 'server' | '30-15'
+        '15 all' | 'receiver' | '15-30'
+        '15-30' | 'server' | '30 all'
+        '15-30' | 'receiver' | '15-40'
+        '15-40' | 'server' | '30-40'
+        '15-40' | 'receiver' | 'game receiver'
+        '30-love' | 'server' | '40-love'
+        '30-love' | 'receiver' | '30-15'
+        '30-15' | 'server' | '40-15'
+        '30-15' | 'receiver' | '30 all'
+        '30 all' | 'server' | '40-30'
+        '30 all' | 'receiver' | '30-40'
+        '30-40' | 'server' | 'deuce'
+        '30-40' | 'receiver' | 'game receiver'
+        '40-love' | 'server' | 'game server'
+        '40-love' | 'receiver' | '40-15'
+        '40-15' | 'server' | 'game server'
+        '40-15' | 'receiver' | '40-30'
+        '40-30' | 'server' | 'game server'
+        '40-30' | 'receiver' | 'deuce'
+        'deuce' | 'server' | 'advantage server'
+        'deuce' | 'receiver' | 'advantage receiver'
+        'advantage server' | 'server' | 'game server'
+        'advantage server' | 'receiver' | 'deuce'
+        'advantage receiver' | 'server' | 'deuce'
+        'advantage receiver' | 'receiver' | 'game receiver'
     }
 }
