@@ -9,13 +9,16 @@ class Spellchecker {
 
     private final bits = new BitSet()
 
-    private final hasher
+    private final MessageDigest hasher
 
-    private final digestLength
+    private final int digestLength
 
-    Spellchecker(Iterable<String> words, String hashAlgorithm = 'SHA-256') {
+    private final int maxHashes
+
+    Spellchecker(Iterable<String> words, String hashAlgorithm = 'SHA-256', int maxHashes = 1024) {
         hasher = MessageDigest.getInstance(hashAlgorithm)
         digestLength = hasher.digestLength
+        this.maxHashes = maxHashes
 
         words.each {
             bitsForWord(it).each { bits.set(it) }
@@ -26,7 +29,10 @@ class Spellchecker {
         Spellchecker spellchecker = null
 
         new File(args[0]).withReader { reader ->
-            spellchecker = new Spellchecker(reader.readLines(), args.size() > 1 ? args[1] : 'SHA-256')
+            spellchecker = new Spellchecker(
+                    reader.readLines(),
+                    args.size() > 1 ? args[1] : 'SHA-256',
+                    args.size() > 2 ? args[2] as int : 256)
         }
 
         println spellchecker.hasherInfo
@@ -56,7 +62,7 @@ class Spellchecker {
     }
 
     private offsets() {
-        (0..<digestLength).step(4)
+        (0..<digestLength).step(4).take(maxHashes)
     }
 
     String getLoading() {

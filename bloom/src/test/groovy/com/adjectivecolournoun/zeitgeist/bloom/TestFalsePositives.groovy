@@ -15,12 +15,12 @@ class TestFalsePositives extends Specification {
             words = it.readLines() as Set
         }
 
-        def spellchecker = new Spellchecker(words, algorithm)
+        def spellchecker = new Spellchecker(words, algorithm, 1)
 
         int falsePositives = 0
 
         when:
-        10_000_000.times {
+        100_000.times {
             def fakeWord = randomAlphanumeric(5)
             if (spellchecker.correct(fakeWord) && !words.contains(fakeWord)) {
                 falsePositives++
@@ -28,15 +28,15 @@ class TestFalsePositives extends Specification {
         }
 
         then:
-        println falsePositives
-        falsePositives <= maxFalsePositives
+        falsePositives > minFalsePositive && falsePositives < maxFalsePositives
 
         where:
-        algorithm | maxFalsePositives
-        'MD2'     | 10
-        'MD5'     | 10
-        'SHA-1'   | 10
-        'SHA-256' | 5
+        algorithm | minFalsePositive | maxFalsePositives
+        'MD2'     | 5                | 15
+        'MD5'     | 5                | 15
+        'SHA-1'   | 5                | 15
+        'SHA-256' | 5                | 15
+        'SHA-512' | 5                | 15
 
     }
 }

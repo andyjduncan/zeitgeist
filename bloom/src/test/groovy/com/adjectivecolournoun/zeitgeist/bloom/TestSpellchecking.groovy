@@ -37,11 +37,18 @@ class TestSpellchecking extends Specification {
 
     void 'supports other hashing algorithms'() {
         when:
-        Security.getProviders().each { it.getServices().each { println it.algorithm } }
         def spellchecker = new Spellchecker([], 'MD5')
 
         then:
         spellchecker.hasherInfo.contains('Algorithm: MD5')
         spellchecker.hasherInfo.readLines().any { it == 'Offsets: 0 4 8 12' }
+    }
+
+    void 'allows the number of hashes to be limited'() {
+        when:
+        def spellchecker = new Spellchecker([], 'SHA-256', 2)
+
+        then:
+        spellchecker.hasherInfo.readLines().any { it == 'Offsets: 0 4' }
     }
 }
